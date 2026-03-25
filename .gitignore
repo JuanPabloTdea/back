@@ -14,3 +14,5 @@ AZURE_SETUP.md
 deploy.sh
 QUICK_DEPLOY.md
 TROUBLESHOOTING.md
+pre-deploy.sh
+FIX_BINARY_ENGINE.md

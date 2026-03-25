@@ -23,12 +23,34 @@ app.http('migrationsRun', {
       }
 
       context.log('Starting database migrations...');
+      context.log('Platform:', process.platform);
+      context.log('Architecture:', process.arch);
+      context.log('PRISMA_CLIENT_ENGINE_TYPE:', process.env.PRISMA_CLIENT_ENGINE_TYPE || 'NOT_SET');
+      context.log('PRISMA_CLI_QUERY_ENGINE_TYPE:', process.env.PRISMA_CLI_QUERY_ENGINE_TYPE || 'NOT_SET');
 
       const prismaCmd = getPrismaCommand();
       context.log(`Using Prisma command: ${prismaCmd}`);
 
-      // Run Prisma migrate deploy (safe for production)
-      // This applies pending migrations without prompting
+      // First, generate Prisma Client with binary engine
+      context.log('Step 1: Generating Prisma Client with binary engine...');
+      const generateCommand = `${prismaCmd} generate`;
+
+      const { stdout: genStdout, stderr: genStderr } = await execAsync(generateCommand, {
+        cwd: process.cwd(),
+        env: {
+          ...process.env,
+          PRISMA_CLIENT_ENGINE_TYPE: 'binary',
+          PRISMA_CLI_QUERY_ENGINE_TYPE: 'binary'
+        }
+      });
+
+      context.log('Generate stdout:', genStdout);
+      if (genStderr) {
+        context.warn('Generate stderr:', genStderr);
+      }
+
+      // Then run migrations
+      context.log('Step 2: Running database migrations...');
       const migrateCommand = `${prismaCmd} migrate deploy`;
       context.log(`Executing: ${migrateCommand}`);
 
@@ -45,26 +67,13 @@ app.http('migrationsRun', {
         context.warn('Migration stderr:', stderr);
       }
 
-      // Generate Prisma Client
-      context.log('Generating Prisma Client...');
-      const generateCommand = `${prismaCmd} generate`;
-      context.log(`Executing: ${generateCommand}`);
-
-      const { stdout: genStdout, stderr: genStderr } = await execAsync(generateCommand, {
-        cwd: process.cwd()
-      });
-
-      context.log('Generate stdout:', genStdout);
-      if (genStderr) {
-        context.warn('Generate stderr:', genStderr);
-      }
-
       return success({
         message: 'Migrations completed successfully',
         output: {
-          migrate: stdout,
-          generate: genStdout
-        }
+          generate: genStdout,
+          migrate: stdout
+        },
+        engineType: 'binary'
       });
     } catch (error) {
       context.error('Migration failed:', error);

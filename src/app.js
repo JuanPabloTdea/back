@@ -8,6 +8,7 @@ require('./functions/health');
 require('./functions/debug/env-check');
 
 // Database migrations
+require('./functions/migrations/generate');
 require('./functions/migrations/run');
 require('./functions/migrations/status');
 require('./functions/migrations/create');
