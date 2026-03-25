@@ -13,7 +13,7 @@ env:
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
-    environment: production
+    environment: computacion-nube
 
     steps:
     - name: Checkout repository
