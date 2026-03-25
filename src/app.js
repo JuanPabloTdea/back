@@ -4,6 +4,9 @@
 // Health check
 require('./functions/health');
 
+// Debug (remove in production)
+require('./functions/debug/env-check');
+
 // Database migrations
 require('./functions/migrations/run');
 require('./functions/migrations/status');
