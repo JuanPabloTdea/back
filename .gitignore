@@ -10,3 +10,5 @@ dist
 .env.*
 
 MIGRATIONS.md
+AZURE_SETUP.md
+deploy.sh
