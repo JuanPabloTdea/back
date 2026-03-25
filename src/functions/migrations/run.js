@@ -41,7 +41,9 @@ app.http('migrationsRun', {
           ...process.env,
           PRISMA_CLIENT_ENGINE_TYPE: 'binary',
           PRISMA_CLI_QUERY_ENGINE_TYPE: 'binary'
-        }
+        },
+        timeout: 300000, // 5 minutes timeout
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
       });
 
       context.log('Generate stdout:', genStdout);
@@ -58,8 +60,12 @@ app.http('migrationsRun', {
         cwd: process.cwd(),
         env: {
           ...process.env,
-          DATABASE_CONNECTION_STRING: process.env.DATABASE_CONNECTION_STRING
-        }
+          DATABASE_CONNECTION_STRING: process.env.DATABASE_CONNECTION_STRING,
+          PRISMA_CLIENT_ENGINE_TYPE: 'binary',
+          PRISMA_CLI_QUERY_ENGINE_TYPE: 'binary'
+        },
+        timeout: 300000, // 5 minutes timeout
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
       });
 
       context.log('Migration stdout:', stdout);

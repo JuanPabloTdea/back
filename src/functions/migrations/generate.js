@@ -40,7 +40,9 @@ app.http('migrationsGenerate', {
           ...process.env,
           PRISMA_CLIENT_ENGINE_TYPE: 'binary',
           PRISMA_CLI_QUERY_ENGINE_TYPE: 'binary'
-        }
+        },
+        timeout: 300000, // 5 minutes timeout
+        maxBuffer: 10 * 1024 * 1024 // 10MB buffer
       });
 
       context.log('Generate stdout:', stdout);
