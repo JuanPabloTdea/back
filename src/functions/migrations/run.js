@@ -2,6 +2,7 @@ const { app } = require('@azure/functions');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const { success, error: errorResponse } = require('../../utils/response');
+const { getPrismaCommand } = require('../../utils/prisma-cli');
 
 const execAsync = promisify(exec);
 
@@ -23,9 +24,15 @@ app.http('migrationsRun', {
 
       context.log('Starting database migrations...');
 
+      const prismaCmd = getPrismaCommand();
+      context.log(`Using Prisma command: ${prismaCmd}`);
+
       // Run Prisma migrate deploy (safe for production)
       // This applies pending migrations without prompting
-      const { stdout, stderr } = await execAsync('npx prisma migrate deploy', {
+      const migrateCommand = `${prismaCmd} migrate deploy`;
+      context.log(`Executing: ${migrateCommand}`);
+
+      const { stdout, stderr } = await execAsync(migrateCommand, {
         cwd: process.cwd(),
         env: {
           ...process.env,
@@ -40,7 +47,10 @@ app.http('migrationsRun', {
 
       // Generate Prisma Client
       context.log('Generating Prisma Client...');
-      const { stdout: genStdout, stderr: genStderr } = await execAsync('npx prisma generate', {
+      const generateCommand = `${prismaCmd} generate`;
+      context.log(`Executing: ${generateCommand}`);
+
+      const { stdout: genStdout, stderr: genStderr } = await execAsync(generateCommand, {
         cwd: process.cwd()
       });
 

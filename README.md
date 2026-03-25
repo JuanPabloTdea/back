@@ -268,23 +268,44 @@ curl -X POST https://func-iajxc4x24u3aw.azurewebsites.net/api/migrations/run \
 
 ## 🐛 Troubleshooting
 
+### Error: "'npx' is not recognized"
+
+✅ **Solución implementada:** La app detecta automáticamente Windows/Azure y usa `node` directamente.
+- Asegúrate de incluir `node_modules` en el deployment
+- Ver [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) para detalles
+
 ### Error: "Prisma engine not supported for 32bit Node"
 
-✅ **Solución:** Ya está configurado el motor binario. Asegúrate de tener las variables:
-```
-PRISMA_CLIENT_ENGINE_TYPE=binary
-PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+✅ **Solución implementada:** El motor binario ya está configurado en `schema.prisma`
+- Variables requeridas en Azure:
+  ```
+  PRISMA_CLIENT_ENGINE_TYPE=binary
+  PRISMA_CLI_QUERY_ENGINE_TYPE=binary
+  ```
+
+### Error: "Unauthorized: Invalid migration secret"
+
+```bash
+# Verificar configuración
+curl https://func-iajxc4x24u3aw.azurewebsites.net/api/debug/env-check
+
+# Usar el secreto por defecto si no está configurado
+curl -X POST https://func-iajxc4x24u3aw.azurewebsites.net/api/migrations/run \
+  -H "x-migration-secret: dev-migration-secret"
 ```
 
 ### Error: "Cannot find module @prisma/client"
 
 ```bash
 npx prisma generate
+# Asegúrate de incluir node_modules en el deployment
 ```
 
 ### Error: "Database connection failed"
 
 Verifica el string de conexión en `local.settings.json` o en Azure Portal.
+
+**Guía completa:** Ver [TROUBLESHOOTING.md](./TROUBLESHOOTING.md) para más información.
 
 ## 📝 Licencia
 

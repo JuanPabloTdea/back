@@ -2,6 +2,7 @@ const { app } = require('@azure/functions');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const { success, error: errorResponse } = require('../../utils/response');
+const { getPrismaCommand } = require('../../utils/prisma-cli');
 
 const execAsync = promisify(exec);
 
@@ -13,8 +14,14 @@ app.http('migrationsStatus', {
     try {
       context.log('Migration status endpoint called');
 
+      const prismaCmd = getPrismaCommand();
+      context.log(`Using Prisma command: ${prismaCmd}`);
+
       // Check migration status
-      const { stdout, stderr } = await execAsync('npx prisma migrate status', {
+      const statusCommand = `${prismaCmd} migrate status`;
+      context.log(`Executing: ${statusCommand}`);
+
+      const { stdout, stderr } = await execAsync(statusCommand, {
         cwd: process.cwd(),
         env: {
           ...process.env,

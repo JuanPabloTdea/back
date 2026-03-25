@@ -2,6 +2,7 @@ const { app } = require('@azure/functions');
 const { exec } = require('child_process');
 const { promisify } = require('util');
 const { success, error: errorResponse } = require('../../utils/response');
+const { getPrismaCommand } = require('../../utils/prisma-cli');
 
 const execAsync = promisify(exec);
 
@@ -37,17 +38,20 @@ app.http('migrationsCreate', {
 
       context.log(`Creating migration: ${migrationName}`);
 
+      const prismaCmd = getPrismaCommand();
+      context.log(`Using Prisma command: ${prismaCmd}`);
+
       // Run Prisma migrate dev to create a new migration
-      const { stdout, stderr } = await execAsync(
-        `npx prisma migrate dev --name ${migrationName}`,
-        {
-          cwd: process.cwd(),
-          env: {
-            ...process.env,
-            DATABASE_CONNECTION_STRING: process.env.DATABASE_CONNECTION_STRING
-          }
+      const createCommand = `${prismaCmd} migrate dev --name ${migrationName}`;
+      context.log(`Executing: ${createCommand}`);
+
+      const { stdout, stderr } = await execAsync(createCommand, {
+        cwd: process.cwd(),
+        env: {
+          ...process.env,
+          DATABASE_CONNECTION_STRING: process.env.DATABASE_CONNECTION_STRING
         }
-      );
+      });
 
       context.log('Migration stdout:', stdout);
       if (stderr) {
