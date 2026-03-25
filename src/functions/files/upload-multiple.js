@@ -54,11 +54,12 @@ app.http('filesUploadMultiple', {
             continue;
           }
 
-          // Generate unique filename
+          // Generate unique filename with user folder
           const timestamp = Date.now();
           const uniqueId = uuidv4();
           const sanitizedName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-          const uniqueFileName = `${timestamp}-${uniqueId}-${sanitizedName}`;
+          const userFolder = decoded.email; // Use email as folder name
+          const uniqueFileName = `${userFolder}/${timestamp}-${uniqueId}-${sanitizedName}`;
 
           // Convert file to buffer
           const arrayBuffer = await file.arrayBuffer();
